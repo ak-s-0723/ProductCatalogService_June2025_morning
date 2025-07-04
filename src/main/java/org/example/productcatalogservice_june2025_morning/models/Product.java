@@ -18,6 +18,9 @@ public class Product extends BaseModel {
 
     private String imageUrl;
 
+    //Business Specific field which we don't want to expose to Seller or Buyer
+    private Boolean isPrimeSpecific;
+
     public Product() {
         this.setCreatedAt(new Date());
         this.setLastUpdatedAt(new Date());
