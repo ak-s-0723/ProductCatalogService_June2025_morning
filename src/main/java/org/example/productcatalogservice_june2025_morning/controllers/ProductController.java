@@ -2,6 +2,7 @@ package org.example.productcatalogservice_june2025_morning.controllers;
 
 import org.example.productcatalogservice_june2025_morning.dtos.CategoryDto;
 import org.example.productcatalogservice_june2025_morning.dtos.ProductDto;
+import org.example.productcatalogservice_june2025_morning.models.Category;
 import org.example.productcatalogservice_june2025_morning.models.Product;
 import org.example.productcatalogservice_june2025_morning.services.FakeStoreProductService;
 import org.example.productcatalogservice_june2025_morning.services.IProductService;
@@ -31,7 +32,8 @@ public class ProductController {
     @GetMapping("/products/{id}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable(name="id") Long productId) {
         if(productId <= 0) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            //return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            throw new IllegalArgumentException("Products start from Id 0");
         }
        Product product = productService.getProductById(productId);
        if(product == null) return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
@@ -41,10 +43,26 @@ public class ProductController {
 
     @PostMapping("/products")
     public ProductDto createProduct(@RequestBody ProductDto input) {
-        return null;
+        Product inputProduct = from(input);
+        Product output  = productService.createProduct(inputProduct);
+        if(output == null) return null;
+
+        return from(output);
     }
 
-    //ToDo: Add Api Wrapper for Delete anD Put
+    //ToDo: Add Api Wrapper for Delete
+
+    @PutMapping("/products/{id}")
+    public ProductDto replaceProduct(@PathVariable Long id, @RequestBody ProductDto productDto) {
+        if(id <= 0) {
+            throw new IllegalArgumentException("Wrong Input");
+        }
+
+        Product inputProduct = from(productDto);
+        Product outputProduct = productService.replaceProduct(id,inputProduct);
+        if(outputProduct == null) return null;
+        return from(outputProduct);
+    }
 
     private ProductDto from (Product product) {
         ProductDto productDto = new ProductDto();
@@ -61,6 +79,25 @@ public class ProductController {
             productDto.setCategory(categoryDto);
         }
         return productDto;
+    }
+
+    private Product from(ProductDto productDto) {
+        Product product = new Product();
+//        product.setCreatedAt(new Date());
+//        product.setLastUpdatedAt(new Date());
+//        product.setState(State.ACTIVE);
+        product.setId(productDto.getId());
+        product.setName(productDto.getName());
+        product.setPrice(productDto.getPrice());
+        product.setImageUrl(productDto.getImageUrl());
+        product.setDescription(productDto.getDescription());
+        if(productDto.getCategory() != null) {
+            Category category = new Category();
+            category.setId(productDto.getCategory().getId());
+            category.setName(productDto.getCategory().getName());
+            product.setCategory(category);
+        }
+        return product;
     }
 
 }
