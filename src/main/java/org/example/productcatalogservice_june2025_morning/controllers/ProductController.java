@@ -7,10 +7,12 @@ import org.example.productcatalogservice_june2025_morning.models.Product;
 import org.example.productcatalogservice_june2025_morning.services.FakeStoreProductService;
 import org.example.productcatalogservice_june2025_morning.services.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController    //Bean or singleton object
@@ -19,6 +21,7 @@ public class ProductController {
        @Autowired
        private IProductService productService;
 
+
 //       public ProductController(IProductService productService) {
 //           this.productService = productService;
 //       }
@@ -26,7 +29,14 @@ public class ProductController {
 
     @GetMapping("/products")
     public List<ProductDto> getAllProducts() {
-      return null;
+        List<ProductDto> productDtos = new ArrayList<>();
+        List<Product> products = productService.getAllProductDetails();
+        for(Product product : products) {
+          ProductDto productDto = from(product);
+          productDtos.add(productDto);
+        }
+
+        return productDtos;
     }
 
     @GetMapping("/products/{id}")
