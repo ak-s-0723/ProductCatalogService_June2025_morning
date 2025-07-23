@@ -4,6 +4,8 @@ import org.example.productcatalogservice_june2025_morning.dtos.ProductDto;
 import org.example.productcatalogservice_june2025_morning.models.Product;
 import org.example.productcatalogservice_june2025_morning.services.IProductService;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -12,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class ProductControllerTest {
@@ -22,6 +24,9 @@ class ProductControllerTest {
 
     @MockBean
     private IProductService productService;
+
+    @Captor
+    private ArgumentCaptor<Long> idCaptor;
 
 
     @Test
@@ -44,6 +49,10 @@ class ProductControllerTest {
         assertEquals(id,productDtoResponseEntity.getBody().getId());
         assertEquals("Iphone 15",productDtoResponseEntity.getBody().getName());
         assertEquals(HttpStatus.OK,productDtoResponseEntity.getStatusCode());
+        verify(productService,times(1)).getProductById(id);
+
+        verify(productService).getProductById(idCaptor.capture());
+        assertEquals(id, idCaptor.getValue());
     }
 
 
@@ -55,6 +64,7 @@ class ProductControllerTest {
         //Act and Assert
         Exception exception = assertThrows(IllegalArgumentException.class,()->productController.getProductById(id));
         assertEquals("Invalid productId",exception.getMessage());
+        verify(productService,times(0)).getProductById(id);
     }
 
     @Test
