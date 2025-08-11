@@ -21,6 +21,20 @@ public class SearchController {
 
     @PostMapping
     public Page<Product> searchProducts(@RequestBody SearchRequestDto searchRequestDto) {
-       return searchService.searchProducts(searchRequestDto.getQuery(),searchRequestDto.getPageNumber(),searchRequestDto.getPageSize());
+       return searchService.searchProducts(searchRequestDto.getQuery(),searchRequestDto.getPageNumber(),searchRequestDto.getPageSize(),searchRequestDto.getSortParams());
     }
 }
+
+
+//{
+//        "query" : "chocolate",
+//        "pageSize" : 6,
+//        "pageNumber" : 0,
+//        "sortParams" : [{
+//        "sortCriteria" : "price",
+//        "sortType" : "DESC"
+//        },{
+//        "sortCriteria": "id",
+//        "sortType": "DESC"
+//        }]
+//        }
