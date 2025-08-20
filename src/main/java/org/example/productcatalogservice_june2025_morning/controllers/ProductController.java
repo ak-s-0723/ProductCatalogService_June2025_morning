@@ -1,5 +1,6 @@
 package org.example.productcatalogservice_june2025_morning.controllers;
 
+import jakarta.ws.rs.Path;
 import org.example.productcatalogservice_june2025_morning.dtos.CategoryDto;
 import org.example.productcatalogservice_june2025_morning.dtos.ProductDto;
 import org.example.productcatalogservice_june2025_morning.models.Category;
@@ -26,6 +27,11 @@ public class ProductController {
 //       public ProductController(IProductService productService) {
 //           this.productService = productService;
 //       }
+
+    @GetMapping("/products/{productId}/{userId}")
+    public ProductDto getProductDetailsBasedOnUserScope(@PathVariable Long productId,@PathVariable Long userId) {
+        return from(productService.getProductBasedOnUserScope(productId,userId));
+    }
 
 
     @GetMapping("/products")

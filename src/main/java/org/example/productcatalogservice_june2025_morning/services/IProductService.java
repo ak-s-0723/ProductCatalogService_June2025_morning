@@ -13,4 +13,6 @@ public interface IProductService {
     Product createProduct(Product input);
 
     Product replaceProduct(Long id,Product input);
+
+    Product getProductBasedOnUserScope(Long productId,Long userId);
 }
