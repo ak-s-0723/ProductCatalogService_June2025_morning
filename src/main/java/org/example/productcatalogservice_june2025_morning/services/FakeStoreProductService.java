@@ -6,6 +6,8 @@ import org.example.productcatalogservice_june2025_morning.models.Category;
 import org.example.productcatalogservice_june2025_morning.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
 @Service("fkps")
+@Primary
 public class FakeStoreProductService implements IProductService {
 
     @Autowired
@@ -26,6 +29,9 @@ public class FakeStoreProductService implements IProductService {
 
     @Autowired
     private FakeStoreApiClient fakeStoreApiClient;
+
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate;
 
     //H/W for 4/7/2025
     @Override
@@ -55,9 +61,23 @@ public class FakeStoreProductService implements IProductService {
 
     @Override
     public Product getProductById(Long productId) {
-       FakeStoreProductDto fakeStoreProductDto = fakeStoreApiClient.getProductById(productId);
-       if(fakeStoreProductDto == null) return  null;
-       return from(fakeStoreProductDto);
+        //if(found in cache) return it
+        //else get from fakestore, persist it
+
+        FakeStoreProductDto fakeStoreProductDto = null;
+
+        fakeStoreProductDto = (FakeStoreProductDto) redisTemplate.opsForHash().get("PRODUCTS",productId);
+
+        if(fakeStoreProductDto == null) {
+            System.out.println("Found by calling fakestore");
+            fakeStoreProductDto = fakeStoreApiClient.getProductById(productId);
+            if(fakeStoreProductDto == null) return  null;
+            redisTemplate.opsForHash().put("PRODUCTS",productId,fakeStoreProductDto);
+        } else {
+            System.out.println("Found in Redis");
+        }
+
+        return from(fakeStoreProductDto);
     }
 
     //ToDo : Refactor in Client Layer and use requestForEntity
